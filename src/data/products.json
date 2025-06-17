@@ -1,0 +1,72 @@
+[
+  {
+    "id": 1,
+    "title": "Monitor LED 24''",
+    "description": "Monitor Full HD con panel IPS de 24 pulgadas.",
+    "code": "MON123",
+    "price": 59999,
+    "status": true,
+    "stock": "30",
+    "category": "Monitores",
+    "thumbnails": [
+      "/img/monitor1.png",
+      "/img/monitor2.png"
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Auriculares Bluetooth",
+    "description": "Auriculares inalámbricos con cancelación de ruido.",
+    "code": "AUR456",
+    "price": 19999,
+    "status": true,
+    "stock": 50,
+    "category": "Audio",
+    "thumbnails": [
+      "/img/auris1.png",
+      "/img/auris2.png"
+    ]
+  },
+  {
+    "id": 3,
+    "title": "Notebook i5 8GB RAM",
+    "description": "Notebook con procesador Intel Core i5, SSD y 8GB RAM.",
+    "code": "NB789",
+    "price": 229999,
+    "status": true,
+    "stock": 10,
+    "category": "Laptops",
+    "thumbnails": [
+      "/img/notebook1.png",
+      "/img/notebook2.png"
+    ]
+  },
+  {
+    "title": "test i5 8GB RAM",
+    "description": "Notebook con procesador Intel Core i5, SSD y 8GB RAM.",
+    "code": "NB789",
+    "price": 229999,
+    "status": true,
+    "stock": 10,
+    "category": "Laptops",
+    "thumbnails": [
+      "/img/notebook1.png",
+      "/img/notebook2.png"
+    ],
+    "id": "b99ce0bc-32c5-4972-bce3-ca5c5033b4f4"
+  },
+  {
+    "title": "test 12132 8GB RAM",
+    "description": "Notebook con procesador Intel Core i5, SSD y 8GB RAM.",
+    "code": "NB789",
+    "price": 229999,
+    "status": true,
+    "stock": 10,
+    "category": "Laptops",
+    "thumbnails": [
+      "/img/notebook1.png",
+      "/img/notebook2.png"
+    ],
+    "id": 50603
+  }
+]
