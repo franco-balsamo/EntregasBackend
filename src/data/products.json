@@ -54,19 +54,5 @@
       "/img/notebook2.png"
     ],
     "id": "b99ce0bc-32c5-4972-bce3-ca5c5033b4f4"
-  },
-  {
-    "title": "test 12132 8GB RAM",
-    "description": "Notebook con procesador Intel Core i5, SSD y 8GB RAM.",
-    "code": "NB789",
-    "price": 229999,
-    "status": true,
-    "stock": 10,
-    "category": "Laptops",
-    "thumbnails": [
-      "/img/notebook1.png",
-      "/img/notebook2.png"
-    ],
-    "id": 50603
   }
 ]
