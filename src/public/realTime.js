@@ -18,19 +18,48 @@ form.addEventListener('submit', e => {
   form.reset();
 });
 
+//socket.on('productos', productos => {
+//
+//    console.log('Recibidos:', productos);
+//    lista.innerHTML = '';
+//    productos.forEach(p => {
+//    const li = document.createElement('li');
+//    li.textContent = `${p.title} (${p.category}) - Código: ${p.code} - ${p.description} - Stock: ${p.stock} - Precio: $${p.price}`;
+//    lista.appendChild(li);
+//
+//    // Agregar botón de eliminar
+//    const btn = document.createElement('button');
+//    btn.textContent = "🗑️";
+//    btn.onclick = () => socket.emit('eliminarProducto', p.id);
+//    li.appendChild(btn);
+//  });
+//});
+
 socket.on('productos', productos => {
+  console.log('Recibidos:', productos);
+  lista.innerHTML = ''; // lista puede ser un <div id="lista">
 
-    console.log('Recibidos:', productos);
-    lista.innerHTML = '';
-    productos.forEach(p => {
-    const li = document.createElement('li');
-    li.textContent = `${p.title} - $${p.price}`;
-    lista.appendChild(li);
+  productos.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'producto-card';
 
-    // Agregar botón de eliminar
+    card.innerHTML = `
+      <img src="${p.thumbnails[0]}" alt="${p.title}" class="producto-img" />
+      <h3>${p.title}</h3>
+      <p>${p.description}</p>
+      <p><strong>Categoría:</strong> ${p.category}</p>
+      <p><strong>Código:</strong> ${p.code}</p>
+      <p><strong>Stock:</strong> ${p.stock}</p>
+      <p><strong>Precio:</strong> $${p.price}</p>
+    `;
+
     const btn = document.createElement('button');
-    btn.textContent = "🗑️";
+    btn.textContent = "Eliminar";
     btn.onclick = () => socket.emit('eliminarProducto', p.id);
-    li.appendChild(btn);
+    btn.className = 'btn-eliminar';
+    card.appendChild(btn);
+
+    lista.appendChild(card);
   });
 });
+

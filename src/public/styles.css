@@ -1,0 +1,92 @@
+/* General */
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 1rem;
+  }
+
+  h1 {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+
+/* Card Products */
+
+  .producto-card {
+    background-color: white;
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+
+  .producto-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: contain;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+  }
+
+  .producto-card h3 {
+    margin: 0.5rem 0;
+    font-size: 1.2rem;
+  }
+
+  .producto-card p {
+    margin: 0.3rem 0;
+    font-size: 0.95rem;
+  }
+
+  .btn-eliminar {
+    margin-top: 0.8rem;
+    padding: 0.4rem 0.8rem;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .btn-eliminar:hover {
+    background-color: #c0392b;
+  }
+
+/* Formulario */
+
+    #formProducto {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+
+    #formProducto input,
+    #formProducto button {
+      padding: 0.6rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    #formProducto input {
+      width: 180px;
+    }
+
+    #formProducto button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    #formProducto button:hover {
+      background-color: #45a049;
+    }

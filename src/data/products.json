@@ -1,12 +1,12 @@
 [
   {
     "id": 1,
-    "title": "Monitor LED 24''",
-    "description": "Monitor Full HD con panel IPS de 24 pulgadas.",
-    "code": "MON123",
-    "price": 59999,
+    "title": "Monitor Samsung 24'' FHD",
+    "description": "Monitor LED de 24 pulgadas con resolución Full HD y tecnología Eye Saver Mode.",
+    "code": "SAM-MON24FHD",
+    "price": 125000,
     "status": true,
-    "stock": "30",
+    "stock": 20,
     "category": "Monitores",
     "thumbnails": [
       "/img/monitor1.png",
@@ -15,44 +15,44 @@
   },
   {
     "id": 2,
-    "title": "Auriculares Bluetooth",
-    "description": "Auriculares inalámbricos con cancelación de ruido.",
-    "code": "AUR456",
-    "price": 19999,
+    "title": "Smartphone Samsung Galaxy A54",
+    "description": "Galaxy A54 con cámara de 50MP, pantalla Super AMOLED y batería de larga duración.",
+    "code": "SAM-GALA54",
+    "price": 350000,
     "status": true,
-    "stock": 50,
-    "category": "Audio",
+    "stock": 35,
+    "category": "Smartphones",
     "thumbnails": [
-      "/img/auris1.png",
-      "/img/auris2.png"
+      "/img/galaxy1.png",
+      "/img/galaxy2.png"
     ]
   },
   {
     "id": 3,
-    "title": "Notebook i5 8GB RAM",
-    "description": "Notebook con procesador Intel Core i5, SSD y 8GB RAM.",
-    "code": "NB789",
-    "price": 229999,
+    "title": "Smart TV Samsung 55'' UHD 4K",
+    "description": "Televisor inteligente con resolución 4K UHD, compatible con apps y asistentes de voz.",
+    "code": "SAM-TV55UHD",
+    "price": 610000,
     "status": true,
     "stock": 10,
-    "category": "Laptops",
+    "category": "Televisores",
     "thumbnails": [
-      "/img/notebook1.png",
-      "/img/notebook2.png"
+      "/img/tv1.png",
+      "/img/tv2.png"
     ]
   },
   {
-    "title": "test i5 8GB RAM",
-    "description": "Notebook con procesador Intel Core i5, SSD y 8GB RAM.",
-    "code": "NB789",
-    "price": 229999,
+    "id": 4,
+    "title": "Tablet Samsung Galaxy Tab S9",
+    "description": "Pantalla AMOLED de 11'', procesador Snapdragon y S-Pen incluido.",
+    "code": "SAM-TABS9",
+    "price": 420000,
     "status": true,
-    "stock": 10,
-    "category": "Laptops",
+    "stock": 15,
+    "category": "Tablets",
     "thumbnails": [
-      "/img/notebook1.png",
-      "/img/notebook2.png"
-    ],
-    "id": "b99ce0bc-32c5-4972-bce3-ca5c5033b4f4"
+      "/img/tablet1.png",
+      "/img/tablet2.png"
+    ]
   }
 ]
