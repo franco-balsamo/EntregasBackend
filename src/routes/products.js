@@ -1,20 +1,28 @@
 // products.js
 import { Router } from 'express';
 import ProductManager from '../managers/productManager.js';
+import productModel from '../models/productsModel.js';
 
 const router = Router();
 const manager = new ProductManager();
 
-// GET / → Obtiene todos los productos
-router.get('/', async (req, res) => {
-  try {
-    const products = await manager.getAllProducts();
-    res.json(products);
-  } catch (error) {
-    console.error('Error al obtener los productos:', error);
-    res.status(500).json({ error: 'Error interno del servidor' });
-  }
-});
+// GET / → Obtiene todos los productos7
+
+      //router.get('/', async (req, res) => {
+      //  try {
+      //    const products = await manager.getAllProducts();
+      //    res.json(products);
+      //  } catch (error) {
+      //    console.error('Error al obtener los productos:', error);
+      //    res.status(500).json({ error: 'Error interno del servidor' });
+      //  }
+      //});
+  
+  router.get('/', async (req, res) => { 
+    const products = await productModel.find();
+    res.json({ products })
+  })
+
 
 // GET /:pid → Obtiene un producto por su ID
 router.get('/:pid', async (req, res) => {
@@ -29,21 +37,32 @@ router.get('/:pid', async (req, res) => {
 });
 
 // POST / → Crea un nuevo producto
-router.post('/', async (req, res) => {
-  const { title, description, code, price, status = true, stock, category, thumbnails = [] } = req.body;
+      //router.post('/', async (req, res) => {
+      //  const { title, description, code, price, status = true, stock, category, thumbnails = [] } = req.body;
+      //
+      //  if (!title || !description || !code || price == null || stock == null || !category) {
+      //    return res.status(400).json({ status: 'error', message: 'Faltan campos obligatorios' });
+      //  }
+      //
+      //  try {
+      //    const newProduct = await manager.addProduct({ title, description, code, price, status, stock, category, thumbnails });
+      //    res.status(201).json(newProduct);
+      //  } catch (error) {
+      //    console.error('Error al crear el producto:', error);
+      //    res.status(500).json({ error: 'Error interno del servidor' });
+      //  }
+      //});
 
-  if (!title || !description || !code || price == null || stock == null || !category) {
-    return res.status(400).json({ status: 'error', message: 'Faltan campos obligatorios' });
-  }
+  router.post('/', async (req, res) => {
+    try {
+      const products = await productModel.insertMany(req.body);
+      res.status(201).json({ message: 'Productos creados', products });
+    } catch (error) {
+      console.error(error);
+      res.status(400).json({ error: error.message });
+    }
+  });
 
-  try {
-    const newProduct = await manager.addProduct({ title, description, code, price, status, stock, category, thumbnails });
-    res.status(201).json(newProduct);
-  } catch (error) {
-    console.error('Error al crear el producto:', error);
-    res.status(500).json({ error: 'Error interno del servidor' });
-  }
-});
 
 // PUT /:pid → Actualiza un producto
 router.put('/:pid', async (req, res) => {

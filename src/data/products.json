@@ -1,19 +1,5 @@
 [
   {
-    "id": 1,
-    "title": "Monitor Samsung 24'' FHD",
-    "description": "Monitor LED de 24 pulgadas con resolución Full HD y tecnología Eye Saver Mode.",
-    "code": "SAM-MON24FHD",
-    "price": 125000,
-    "status": true,
-    "stock": 20,
-    "category": "Monitores",
-    "thumbnails": [
-      "/img/monitor1.png",
-      "/img/monitor2.png"
-    ]
-  },
-  {
     "id": 2,
     "title": "Smartphone Samsung Galaxy A54",
     "description": "Galaxy A54 con cámara de 50MP, pantalla Super AMOLED y batería de larga duración.",
@@ -54,5 +40,25 @@
       "/img/tablet1.png",
       "/img/tablet2.png"
     ]
+  },
+  {
+    "title": "Smartwatch",
+    "price": 275000,
+    "description": "Reloj inteligente 40mm Sport ",
+    "code": "SW40SPORT",
+    "stock": 15,
+    "category": "SmartWatch",
+    "thumbnails": [],
+    "id": 52451
+  },
+  {
+    "title": "rwfsgf",
+    "price": 1,
+    "description": "fgfdfgdg",
+    "code": "fdfgf",
+    "stock": 1,
+    "category": "fgasfgg",
+    "thumbnails": [],
+    "id": 90944
   }
 ]
