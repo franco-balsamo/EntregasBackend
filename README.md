@@ -20,18 +20,31 @@ Este proyecto forma parte de las entregas del curso **Programación Backend** de
 ```
 /project
 │
-├── /data
-│   ├── products.json
-│   └── carts.json
+├── /controllers.js
+│   ├── cartsControllers.js
+│   └── productsControllers.js
+|
+├── /models
+│   ├── cartsModel.js
+│   └── productsModel.js
 │
-├── /views
-│   ├── home.handlebars
-│   └── realTimeProducts.handlebars
+├── /public
+│   ├── realTime.js
+│   └── styles.css
 │
 ├── /routes
-├── /public
-├── app.js
-└── ...
+│   |__ carts.js
+│   |__ products.js
+|   |__ viewsRouter.js
+|
+├── /views
+│   |__ /layouts
+│   |       |__ products.js
+|   |__ home.handlebars
+|    |__ realTimeProducts.handlebars
+|
+|   app.js
+|__ ...
 ```
 
 ---

@@ -62,7 +62,6 @@ export const clearCart = async (req, res) => {
   }
 };
 
-// Crear un nuevo carrito vacío
 export const createCart = async (req, res) => {
   try {
     const cart = await Cart.create({ products: [] });
