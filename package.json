@@ -5,18 +5,34 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/app.js",
-    "dev": "nodemon src/app.js"
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "Este proyecto forma parte de las entregas del curso **Programación Backend** de Coderhouse. Desarrolla un servidor utilizando **Node.js con Express**, aplicando operaciones CRUD sobre productos y carritos, almacenamiento en archivos JSON, y vistas dinámicas con **Handlebars**. También incorpora **WebSockets** para actualizar productos en tiempo real.",
   "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cookieparser": "^0.1.0",
+    "dotenv": "^17.2.2",
     "express": "^5.1.0",
     "express-handlebars": "^8.0.2",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.16.4",
     "mongoose-paginate-v2": "^1.9.1",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
     "socket.io": "^4.8.1"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/franco-balsamo/EntregasBackend.git"
+  },
+  "bugs": {
+    "url": "https://github.com/franco-balsamo/EntregasBackend/issues"
+  },
+  "homepage": "https://github.com/franco-balsamo/EntregasBackend#readme"
 }
