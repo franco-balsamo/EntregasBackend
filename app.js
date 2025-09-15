@@ -12,7 +12,7 @@ import initializePassport from './src/config/passportConfig.js';
 import viewsRouter from './src/routes/viewsRouter.js';
 import productsRouter from './src/routes/products.js';
 import cartsRouter from './src/routes/carts.js';
-import sessionsRouter from './routes/session.js'
+import sessionsRouter from './src/routes/session.js'
 //import ProductManager from './managers/productManager.js';
 
 dotenv.config();
