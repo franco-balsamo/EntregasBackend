@@ -1,7 +1,5 @@
 import express from 'express';
 import handlebars from 'express-handlebars';
-
-import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import passport from 'passport';
@@ -13,7 +11,7 @@ import viewsRouter from './src/routes/viewsRouter.js';
 import productsRouter from './src/routes/products.js';
 import cartsRouter from './src/routes/carts.js';
 import sessionsRouter from './src/routes/session.js'
-//import ProductManager from './managers/productManager.js';
+
 
 dotenv.config();
 const app = express();
@@ -32,15 +30,14 @@ app.engine('handlebars', handlebars.engine());
 app.set('view engine', 'handlebars');
 app.set('views', 'views');
 
-// ROUTE
+// Routes
 app.use("/api/products", productsRouter);
 app.use("/api/carts", cartsRouter);
 app.use('/', viewsRouter);
 app.use('/api/sessions', sessionsRouter)
 
 
-// Mongo y servidor
-
+// Server
 const PORT = process.env.PORT || 3000;
 connectDB().then(() => {
   app.listen(PORT, () => console.log(`Servidor corriendo en http://localhost:${PORT}`));

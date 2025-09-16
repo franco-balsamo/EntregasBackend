@@ -1,7 +1,5 @@
 import passport from 'passport';
 
-//const passportAuth = passport.authenticate('jwt', { session: false });
-
 export const passportCall = (strategy) => {
     return async(req, res, next) => {
         passport.authenticate(strategy, { session: false }, (error, user, info) => {
