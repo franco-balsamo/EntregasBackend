@@ -1,28 +1,23 @@
 import express from 'express';
-import handlebars from 'express-handlebars';
 import cookieParser from 'cookie-parser';
-import dotenv from 'dotenv';
 import passport from 'passport';
+import handlebars from 'express-handlebars';
 
-import connectDB from './src/config/db.js';
-import initializePassport from './src/config/passportConfig.js';
+import { connectDB } from './src/config/db.js';
+import initPassport from './src/config/passport.js';
 
-import viewsRouter from './src/routes/viewsRouter.js';
-import productsRouter from './src/routes/products.js';
-import cartsRouter from './src/routes/carts.js';
-import sessionsRouter from './src/routes/session.js'
+import productsRouter from './src/routes/products.router.js';
+import sessionsRouter from './src/routes/sessions.router.js';
+import cartsRouter from './src/routes/carts.router.js';
 
-
-dotenv.config();
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser(process.env.JWT_SECRET));
-app.use(express.static('public'));
+app.use(cookieParser());
 
-// Passport JWT
-initializePassport();
+// Passport
+initPassport();
 app.use(passport.initialize());
 
 // Handlebars
@@ -30,18 +25,18 @@ app.engine('handlebars', handlebars.engine());
 app.set('view engine', 'handlebars');
 app.set('views', 'views');
 
-// Routes
-app.use("/api/products", productsRouter);
-app.use("/api/carts", cartsRouter);
-app.use('/', viewsRouter);
-app.use('/api/sessions', sessionsRouter)
+// Routers
+app.use('/api/products', productsRouter);
+app.use('/api/sessions', sessionsRouter);
+app.use('/api/carts', cartsRouter);
 
 
-// Server
-const PORT = process.env.PORT || 3000;
-connectDB().then(() => {
-  app.listen(PORT, () => console.log(`Servidor corriendo en http://localhost:${PORT}`));
-})
+// DB + Server
+connectDB().catch(err => { console.error('Mongo error', err); process.exit(1); });
+
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
+
 
 
 
