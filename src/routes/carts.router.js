@@ -1,10 +1,12 @@
 // src/routes/carts.router.js
 import { Router } from 'express';
+import crypto from 'node:crypto';
 import { requireAuth } from '../middlewares/requireAuth.js';
 import { allowRoles } from '../middlewares/authorization.js';
 import { ownsCartOrAdmin } from '../middlewares/cartOwnership.js';
 import CartsRepository from '../dao/repositories/carts.repository.js';
 import ProductsRepository from '../dao/repositories/products.repository.js';
+import TicketsRepository from '../dao/repositories/tickets.repository.js';
 
 const router = Router();
 
@@ -101,6 +103,69 @@ router.delete('/:cid',
   async (req, res) => {
     const updated = await CartsRepository.empty(req.params.cid);
     res.json(updated);
+  }
+);
+
+// ************ PURCHASE ************
+router.post('/:cid/purchase',
+  requireAuth,
+  allowRoles('user'),
+  ownsCartOrAdmin,
+  async (req, res) => {
+    try {
+      const { cid } = req.params;
+
+      // 1) Traer carrito con populate (para conocer el price actual)
+      const cart = await CartsRepository.getById(cid);
+      if (!cart) return res.status(404).json({ error: 'cart not found' });
+
+      const approved = [];   // { pid, qty, price }
+      const rejected = [];   // { product, quantity }
+      let amount = 0;
+
+      // 2) Intentar descontar stock por cada línea del carrito
+      for (const line of cart.products) {
+        const pid = line.product?._id?.toString();
+        const qty = Number(line.quantity);
+        const price = Number(line.product?.price);
+
+        if (!pid || !Number.isFinite(qty) || qty <= 0) continue;
+
+        const ok = await ProductsRepository.decStockIfEnough(pid, qty);
+        if (ok) {
+          approved.push({ pid, qty, price });
+          amount += price * qty;
+        } else {
+          rejected.push({ product: pid, quantity: qty });
+        }
+      }
+
+      // 3) Si nada pudo procesarse, devolvés error amigable
+      if (approved.length === 0) {
+        return res.status(400).json({ error: 'No hay stock suficiente para los productos del carrito.' });
+      }
+
+      // 4) Crear ticket
+      const ticket = await TicketsRepository.create({
+        code: crypto.randomUUID(),
+        amount,
+        purchaser: req.user.email
+      });
+
+      // 5) Dejar en el carrito solo los no procesados
+      await CartsRepository.setProducts(cid, rejected);
+
+      // 6) Responder
+      return res.json({
+        status: 'success',
+        ticket,
+        purchasedCount: approved.length,
+        unprocessedProducts: rejected
+      });
+    } catch (err) {
+      console.error('POST /api/carts/:cid/purchase error:', err);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
   }
 );
 

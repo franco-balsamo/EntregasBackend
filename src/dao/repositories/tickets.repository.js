@@ -5,9 +5,8 @@ class TicketsRepository {
     const doc = await TicketModel.create(data);
     return doc.toObject();
   }
-
-  async getByCode(code) {
-    return await TicketModel.findOne({ code }).lean();
+  async getById(id) {
+    return TicketModel.findById(id).lean();
   }
 }
 

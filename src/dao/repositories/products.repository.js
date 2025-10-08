@@ -1,27 +1,8 @@
 import { ProductModel } from '../../models/product.model.js';
 
 class ProductsRepository {
-  async paginate(filter = {}, options = {}) {
-    const limit = Number(options.limit ?? 10);
-    const page  = Number(options.page ?? 1);
-    const sort  = options.sort ?? null; // ej { price: 1 } o { price: -1 }
-
-    const query = ProductModel.find(filter)
-      .skip((page - 1) * limit)
-      .limit(limit);
-
-    if (sort) query.sort(sort);
-
-    const [items, total] = await Promise.all([
-      query.lean(),
-      ProductModel.countDocuments(filter)
-    ]);
-
-    return { items, total, page, pages: Math.ceil(total / limit) };
-  }
-
   async getById(id) {
-    return await ProductModel.findById(id).lean();
+    return ProductModel.findById(id).lean();
   }
 
   async create(data) {
@@ -30,11 +11,31 @@ class ProductsRepository {
   }
 
   async updateById(id, patch) {
-    return await ProductModel.findByIdAndUpdate(id, patch, { new: true }).lean();
+    return ProductModel.findByIdAndUpdate(id, { $set: patch }, { new: true }).lean();
   }
 
   async deleteById(id) {
-    return await ProductModel.findByIdAndDelete(id).lean();
+    return ProductModel.findByIdAndDelete(id).lean();
+  }
+
+  async paginate(filter = {}, { limit = 10, page = 1, sort = null } = {}) {
+    const l = Number(limit), p = Number(page);
+    const query = ProductModel.find(filter);
+    if (sort) query.sort(sort);
+    const [items, total] = await Promise.all([
+      query.skip((p - 1) * l).limit(l).lean(),
+      ProductModel.countDocuments(filter)
+    ]);
+    return { items, total, page: p, pages: Math.max(1, Math.ceil(total / l)) };
+  }
+
+  // *** NUEVO: descuenta stock solo si alcanza (operación atómica) ***
+  async decStockIfEnough(pid, qty) {
+    const r = await ProductModel.updateOne(
+      { _id: pid, stock: { $gte: qty } },
+      { $inc: { stock: -qty } }
+    );
+    return r.modifiedCount === 1;
   }
 }
 
