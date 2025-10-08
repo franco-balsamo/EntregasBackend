@@ -103,6 +103,7 @@ import UsersRepository from '../dao/repositories/users.repository.js';
 import CartsRepository from '../dao/repositories/carts.repository.js';
 import { createHash, isValidPassword } from '../utils/crypto.js';
 import UserDTO from '../dto/user.dto.js';
+import { ensureUserCart } from '../middlewares/ensureUserCart.js';
 
 const router = Router();
 const COOKIE_NAME = 'authToken';
@@ -180,8 +181,10 @@ router.post('/logout', (req, res) => {
 });
 
 // CURRENT (protegido, devuelve DTO sin password)
-router.get('/current',
+router.get(
+  '/current',
   passport.authenticate('jwt', { session: false }),
+  ensureUserCart,                  // <- agregado acá
   (req, res) => {
     res.json(new UserDTO(req.user));
   }
