@@ -7,8 +7,8 @@ export const transporter = nodemailer.createTransport({
 });
 
 transporter.verify()
-  .then(() => console.log('📨 Gmail SMTP listo'))
-  .catch(err => console.error('❌ Error SMTP:', err.message));
+  .then(() => console.log('Gmail SMTP listo'))
+  .catch(err => console.error('Error SMTP:', err.message));
 
 export async function sendPasswordResetEmail(to, resetUrl, name = '') {
   const html = `
@@ -40,7 +40,7 @@ export async function sendPasswordResetEmail(to, resetUrl, name = '') {
 //      from: config.MAIL.from,
 //      to: config.MAIL.user, // te lo mandás a vos
 //      subject: 'Prueba SMTP desde Nodemailer',
-//      text: 'Todo ok con Gmail SMTP ✅'
+//      text: 'Todo ok con Gmail SMTP'
 //    });
 //    console.log('Correo de prueba enviado.');
 //  } catch (err) {

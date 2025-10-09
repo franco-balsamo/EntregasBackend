@@ -1,0 +1,404 @@
+{
+	"info": {
+		"_postman_id": "133085c9-f9df-4a1c-8fbe-2c2d449bfec5",
+		"name": "EntregasBackend – Mini Demo (8 requests)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "32280862"
+	},
+	"item": [
+		{
+			"name": "1) Login admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 OK (admin login)\", ()=> pm.response.to.have.status(200));",
+							"pm.test(\"Cookie authToken presente\", ()=> pm.expect(pm.cookies.has('authToken')).to.be.true);"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \"email\":\"ana@test.com\",\"password\":\"1234\" }"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/sessions/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"sessions",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2) Admin crea producto A (price=100, stock=2)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"201 Created\", ()=> pm.response.to.have.status(201));",
+							"const j = pm.response.json(); pm.collectionVariables.set(\"productId\", j._id || \"\"); pm.test(\"productId guardado\", ()=> pm.expect(pm.collectionVariables.get(\"productId\")).to.have.lengthOf(24));"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"title\":\"A\",\"code\":\"A-{{Date.now}}\",\"price\":100,\"stock\":2}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/products",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"products"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3) Login user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"200 OK (user login)\", ()=> pm.response.to.have.status(200));",
+							"pm.test(\"Cookie authToken presente\", ()=> pm.expect(pm.cookies.has('authToken')).to.be.true);"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \"email\":\"{{userEmail}}\",\"password\":\"{{userPassword}}\" }"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/sessions/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"sessions",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "4) /current (guardar cart del user)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"200 OK /current\", ()=> pm.response.to.have.status(200));",
+							"const j = pm.response.json(); pm.test(\"role=user\", ()=> pm.expect(j.role).to.eql('user'));",
+							"pm.collectionVariables.set(\"userCartId\", j.cart || \"\"); pm.test(\"userCartId guardado\", ()=> pm.expect(pm.collectionVariables.get(\"userCartId\")).to.have.lengthOf(24));"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/sessions/current",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"sessions",
+						"current"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "5) User agrega A x1 a su carrito",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"200 OK (add)\", ()=> pm.response.to.have.status(200));"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \"quantity\": 1 }"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/carts/{{userCartId}}/product/{{productId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"carts",
+						"{{userCartId}}",
+						"product",
+						"{{productId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "6) Purchase (debería comprar 1x A → amount=100)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"200 OK purchase\", ()=> pm.response.to.have.status(200));",
+							"const j = pm.response.json();",
+							"pm.test(\"Ticket presente\", ()=> pm.expect(j.ticket).to.be.an(\"object\"));",
+							"pm.test(\"Amount == 100\", ()=> pm.expect(j.ticket.amount).to.eql(100));",
+							"pm.test(\"Unprocessed vacío\", ()=> pm.expect(j.unprocessedProducts.length).to.eql(0));"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/carts/{{userCartId}}/purchase",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"carts",
+						"{{userCartId}}",
+						"purchase"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "7) Ver carrito (vacío tras compra total)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"200 OK cart\", ()=> pm.response.to.have.status(200));"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/carts/{{userCartId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"carts",
+						"{{userCartId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "8) Listar productos (ver stock actualizado)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"200 OK list\", ()=> pm.response.to.have.status(200));"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/products?limit=5&page=1",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"products"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "5"
+						},
+						{
+							"key": "page",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "9) Reset Password",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"email\": \"carlos@test.com\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/sessions/forgot-password",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"sessions",
+						"forgot-password"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "10) Update Password",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2OGUzMTM1ZGU3MjZhYWUzNDZiMzM3NjIiLCJwaCI6InFUeWNJZkg2WG0iLCJ0eXBlIjoicmVzZXQiLCJpYXQiOjE3NjAwMjExMzgsImV4cCI6MTc2MDAyNDczOH0.yeuo6EEjS7ty2eGpxOvNE4XQELUZQ4xnyHnAj_2XfjY\", \"password\": \"carlostest\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/sessions/reset-password",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"sessions",
+						"reset-password"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080"
+		},
+		{
+			"key": "adminEmail",
+			"value": "ana@test.com"
+		},
+		{
+			"key": "adminPassword",
+			"value": "1234"
+		},
+		{
+			"key": "userEmail",
+			"value": "carlos@test.com"
+		},
+		{
+			"key": "userPassword",
+			"value": "1234"
+		},
+		{
+			"key": "productId",
+			"value": ""
+		},
+		{
+			"key": "userCartId",
+			"value": ""
+		}
+	]
+}

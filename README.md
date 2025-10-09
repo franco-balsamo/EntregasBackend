@@ -1,144 +1,216 @@
-# Backend 1 - Proyecto CRUD + Handlebars + WebSockets
+# 🧠 Proyecto Full Backend – Coderhouse (Backend I + Backend II)
 
-Este proyecto forma parte de las entregas del curso **Programación Backend** de Coderhouse. Desarrolla un servidor utilizando **Node.js con Express**, aplicando operaciones CRUD sobre productos y carritos, almacenamiento en archivos JSON, y vistas dinámicas con **Handlebars**. También incorpora **WebSockets** para actualizar productos en tiempo real.
+**Autor:** Franco Balsamo  
+**Cursos:**  
+- [Programación Backend I – Desarrollo Avanzado de Backend] 
+- [Programación Backend II – Diseño y Arquitectura Backend]
 
 ---
 
-## 🧩 Tecnologías utilizadas
+## 📚 Índice
 
-- Node.js
+1. [Backend I – Proyecto CRUD + Handlebars + WebSockets](#backend-i)
+2. [Backend II – Arquitectura avanzada + MongoDB + JWT + Mailing](#backend-ii)
+3. [Tecnologías generales](#tecnologías-generales)
+4. [Autor](#autor)
+
+---
+
+# Backend I
+<a name="backend-i"></a>
+
+Proyecto del curso **Backend I**, enfocado en conceptos fundamentales:
+- Servidor Express.
+- Motor de plantillas **Handlebars**.
+- WebSockets para comunicación en tiempo real.
+- Persistencia en archivos (FileSystem).
+- CRUD básico de productos y carritos.
+- Enrutamiento básico y middlewares.
+- Manejo de sesiones.
+
+El proyecto final consistió en un **e-commerce funcional** con vistas renderizadas, creación de productos en tiempo real y persistencia simple.
+
+---
+
+# Backend II
+<a name="backend-ii"></a>
+
+Este proyecto amplía el anterior aplicando **arquitectura por capas**, **MongoDB**, **JWT**, **roles**, **mailing** y **sistema de tickets**.
+
+---
+
+## 🧩 Tecnologías
+
+- Node.js v18+
 - Express.js
-- File System (persistencia en archivos `.json`)
-- Handlebars (motor de plantillas)
-- WebSockets (Socket.IO)
-- JavaScript moderno (ES6+)
+- MongoDB + Mongoose
+- Handlebars (para vistas de `/products` y `/carts`)
+- JWT (auth cookie httpOnly)
+- bcrypt (hash de contraseñas)
+- Nodemailer + Gmail (mailing)
+- UUID (tickets)
+- WebSockets (real-time)
+- Arquitectura de Capas (Controllers → Services → DAO → Models)
 
 ---
 
-## 📁 Estructura del proyecto
+## 📂 Estructura del proyecto
 
 ```
-/project
-│
-├── /controllers.js
-│   ├── cartsControllers.js
+/src
+├── config/
+│   ├── config.js
+│   ├── db.js
+│   └── passport.js
+├── controllers/
+│   ├── cartsControllers.js          
 │   └── productsControllers.js
-|
-├── /models
-│   ├── cartsModel.js
-│   └── productsModel.js
-│
-├── /public
-│   ├── realTime.js
-│   └── styles.css
-│
-├── /routes
-│   |__ carts.js
-│   |__ products.js
-|   |__ viewsRouter.js
-|
-├── /views
-│   |__ /layouts
-│   |       |__ products.js
-|   |__ home.handlebars
-|    |__ realTimeProducts.handlebars
-|
-|   app.js
-|__ ...
+├── dao/
+│   └── repositories/
+│       ├── carts.repository.js
+│       ├── products.repository.js
+│       ├── tickets.repository.js
+│       └── users.repository.js
+├── dto/
+│   └── user.dto.js
+├── middlewares/
+│   ├── authorization.js
+│   ├── cartOwnership.js
+│   ├── ensureUserCart.js
+│   ├── passportAuth.js
+│   └── requireAuth.js
+├── models/
+│   ├── cart.model.js
+│   ├── product.model.js
+│   ├── ticket.model.js
+│   └── user.model.js
+├── routes/
+│   ├── carts.router.js
+│   ├── products.router.js
+│   ├── sessions.router.js
+│   └── viewsRouter.js              
+├── utils/
+│   ├── crypto.js
+│   └── mailer.js
+├── views/                           
+│   ├── layouts/
+│   │   └── main.handlebars          
+│   ├── cartDetail.handlebars        
+│   ├── productDetail.handlebars
+│   └── products.handlebars
+/postman
+│   └── backend-ecommerce_api-tests.postman_collection.json
+app.js
+package.json
+.env
+README.md
+
+
 ```
 
 ---
 
-## 🚀 Instalación
+## 🔐 Autenticación y Roles
 
-1. Clonar el repositorio:
-
-```bash
-git clone https://github.com/franco-balsamo/backend1.git
-cd backend1
-```
-
-2. Instalar dependencias:
-
-```bash
-npm install
-```
-
-3. Iniciar el servidor:
-
-```bash
-npm start
-```
-
-Por defecto, el servidor corre en `http://localhost:8080`.
+- Registro y login con JWT guardado en cookie `authToken` (httpOnly).  
+- Roles: `user` y `admin`.  
+- Middleware `ownsCartOrAdmin` protege rutas de carrito.
 
 ---
 
-## 🔧 Funcionalidades
+## ✉️ Recuperación de contraseña
 
-### 🛒 Carritos – `/api/carts`
-
-| Método | Ruta                                                | Descripción                                     |
-|--------|-----------------------------------------------------|-------------------------------------------------|
-| POST   | `/api/carts`                                        | Crea un nuevo carrito vacío                    |
-| GET    | `/api/carts/:cid`                                   | Obtiene los productos de un carrito            |
-| POST   | `/api/carts/:cid/product/:pid`                      | Agrega un producto al carrito indicado         |
+- `POST /api/sessions/forgot-password` → genera token (expira 1 h) y envía mail con botón.  
+- `POST /api/sessions/reset-password` → permite cambiarla (no puede ser igual a la anterior).  
+- Link de **un solo uso** y expiración automática.
 
 ---
 
-### 📦 Productos – `/api/products`
+## 🛍️ Lógica de negocio
 
-| Método | Ruta                          | Descripción                                 |
-|--------|-------------------------------|---------------------------------------------|
-| GET    | `/api/products`              | Obtiene todos los productos                 |
-| GET    | `/api/products/:pid`         | Obtiene un producto por su ID               |
-| POST   | `/api/products`              | Crea un nuevo producto                      |
-| PUT    | `/api/products/:pid`         | Actualiza un producto existente             |
-| DELETE | `/api/products/:pid`         | Elimina un producto                         |
+### Products `/api/products`
+CRUD completo.  
+Solo **admin** puede crear/editar/eliminar.  
+Soporta paginado, filtros y orden.
 
----
+### Carts `/api/carts`
+- Ownership (solo dueño o admin).  
+- Agregar, actualizar, eliminar y vaciar productos.  
+- `POST /api/carts/:cid/purchase` genera un **Ticket**:
+  ```json
+  {
+    "ticket": { "code": "uuid", "amount": 200, "purchaser": "user@test.com" },
+    "purchasedCount": 1,
+    "unprocessedProducts": []
+  }
+  ```
 
-## 🖥️ Vistas
-
-### 📄 `home.handlebars`
-
-- URL: `http://localhost:8080/`
-- Muestra todos los productos disponibles en una vista estática.
-
-### ⚡ `realTimeProducts.handlebars`
-
-- URL: `http://localhost:8080/realTimeProducts`
-- Contiene un formulario para crear productos.
-- Usa **WebSockets** para actualizar la lista de productos en tiempo real.
+### Tickets
+Modelo con `code`, `purchase_datetime`, `amount`, `purchaser`.  
+Creado automáticamente en cada compra.
 
 ---
 
-## 📚 Entregas del curso
+## 🧪 Endpoints principales
 
-### ✅ Entrega N°1
-
-- Implementación CRUD de productos y carritos
-- Uso de FileSystem para persistencia en JSON
-
-### ✅ Entrega N°2
-
-- Integración de **Handlebars**
-- Implementación de **WebSockets** para productos en tiempo real
-- Vistas dinámicas renderizadas en el navegador
+| Método | Ruta | Descripción | Rol |
+|---------|------|-------------|-----|
+| POST | `/api/sessions/register` | Crear usuario + carrito | Público |
+| POST | `/api/sessions/login` | Login (set cookie) | Público |
+| GET | `/api/sessions/current` | Datos del usuario actual | Logueado |
+| POST | `/api/sessions/forgot-password` | Enviar mail de reseteo | Público |
+| POST | `/api/sessions/reset-password` | Cambiar contraseña | Público |
+| GET | `/api/products` | Listar productos | Todos |
+| POST | `/api/products` | Crear producto | Admin |
+| PUT | `/api/products/:pid` | Editar producto | Admin |
+| DELETE | `/api/products/:pid` | Eliminar producto | Admin |
+| GET | `/api/carts/:cid` | Ver carrito | User dueño |
+| POST | `/api/carts/:cid/product/:pid` | Agregar producto | User dueño |
+| PUT | `/api/carts/:cid/product/:pid` | Cambiar cantidad | User dueño |
+| DELETE | `/api/carts/:cid/product/:pid` | Eliminar producto | User dueño |
+| POST | `/api/carts/:cid/purchase` | Finalizar compra y crear ticket | User dueño |
 
 ---
 
-## 📎 Recursos
+## 🧩 Testing en Postman
 
-- [Documentación Express.js](https://expressjs.com/)
-- [Guía de Handlebars](https://handlebarsjs.com/)
-- [Socket.IO](https://socket.io/)
+Colecciones disponibles:
+- **Mini Demo (10 requests)**  
+  https://raw.githubusercontent.com/franco-balsamo/EntregasBackend/master/postman/backend-ecommerce_api-tests.postman_collection.json
+
+Flujos recomendados:
+1. Login Admin → crear productos.  
+2. Login User → agregar productos a su carrito.  
+3. `/purchase` → generar ticket.  
+4. `/forgot-password` → `/reset-password`.
+
+---
+
+## 🧠 Entregas del curso Backend II
+
+| Etapa | Contenido |
+|--------|------------|
+| 1 | Registro y login con JWT |
+| 2 | Roles y ownership |
+| 3 | Carts avanzados + purchase |
+| 4 | Ticket + Recuperación de contraseña por mail |
+
+---
+
+## 🧰 Tecnologías generales
+- Node.js + Express  
+- MongoDB + Mongoose  
+- Handlebars  
+- WebSockets  
+- JWT + Cookies  
+- bcrypt  
+- Nodemailer  
+- Dotenv  
+- UUID  
+- Postman (testing)
 
 ---
 
 ## 👨‍💻 Autor
-
 **Franco Balsamo**  
-Proyecto del curso [Programación Backend - Coderhouse](https://www.coderhouse.com)
-
----
+Proyecto final conjunto de los cursos **Backend I** y **Backend II – Coderhouse**.
