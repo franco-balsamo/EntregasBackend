@@ -1,4 +1,3 @@
-// src/routes/carts.router.js
 import { Router } from 'express';
 import crypto from 'node:crypto';
 import { requireAuth } from '../middlewares/requireAuth.js';
@@ -10,7 +9,6 @@ import TicketsRepository from '../dao/repositories/tickets.repository.js';
 
 const router = Router();
 
-// GET detalle de carrito (dueño o admin)
 router.get('/:cid',
   requireAuth,
   ownsCartOrAdmin,
@@ -21,11 +19,10 @@ router.get('/:cid',
   }
 );
 
-// Agregar producto (solo user, sobre su carrito)
 router.post('/:cid/product/:pid',
   requireAuth,
-  allowRoles('user'),        // <- solo usuarios
-  ownsCartOrAdmin,           // <- y solo el dueño de ese cid
+  allowRoles('user'),        
+  ownsCartOrAdmin,           
   async (req, res) => {
     const { cid, pid } = req.params;
     const qty = Number(req.body.quantity ?? 1);
@@ -37,7 +34,6 @@ router.post('/:cid/product/:pid',
     const cart = await CartsRepository.getById(cid);
     if (!cart) return res.status(404).json({ error: 'cart not found' });
 
-    // Si ya existe, sumamos quantity; si no, pusheamos
     const existing = cart.products.find(p => p.product?._id?.toString() === pid);
     if (existing) {
       existing.quantity += qty;
@@ -55,7 +51,6 @@ router.post('/:cid/product/:pid',
   }
 );
 
-// Setear cantidad exacta (solo user, dueño)
 router.put('/:cid/product/:pid',
   requireAuth,
   allowRoles('user'),
@@ -76,7 +71,6 @@ router.put('/:cid/product/:pid',
   }
 );
 
-// Eliminar un producto del carrito (solo user, dueño)
 router.delete('/:cid/product/:pid',
   requireAuth,
   allowRoles('user'),
@@ -95,7 +89,6 @@ router.delete('/:cid/product/:pid',
   }
 );
 
-// Vaciar carrito (solo user, dueño)
 router.delete('/:cid',
   requireAuth,
   allowRoles('user'),
@@ -106,7 +99,6 @@ router.delete('/:cid',
   }
 );
 
-// ************ PURCHASE ************
 router.post('/:cid/purchase',
   requireAuth,
   allowRoles('user'),
@@ -115,15 +107,13 @@ router.post('/:cid/purchase',
     try {
       const { cid } = req.params;
 
-      // 1) Traer carrito con populate (para conocer el price actual)
       const cart = await CartsRepository.getById(cid);
       if (!cart) return res.status(404).json({ error: 'cart not found' });
 
-      const approved = [];   // { pid, qty, price }
-      const rejected = [];   // { product, quantity }
+      const approved = [];   
+      const rejected = [];   
       let amount = 0;
 
-      // 2) Intentar descontar stock por cada línea del carrito
       for (const line of cart.products) {
         const pid = line.product?._id?.toString();
         const qty = Number(line.quantity);
@@ -140,22 +130,18 @@ router.post('/:cid/purchase',
         }
       }
 
-      // 3) Si nada pudo procesarse, devolvés error amigable
       if (approved.length === 0) {
         return res.status(400).json({ error: 'No hay stock suficiente para los productos del carrito.' });
       }
 
-      // 4) Crear ticket
       const ticket = await TicketsRepository.create({
         code: crypto.randomUUID(),
         amount,
         purchaser: req.user.email
       });
 
-      // 5) Dejar en el carrito solo los no procesados
       await CartsRepository.setProducts(cid, rejected);
 
-      // 6) Responder
       return res.json({
         status: 'success',
         ticket,

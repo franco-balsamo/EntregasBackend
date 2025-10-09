@@ -29,7 +29,6 @@ class ProductsRepository {
     return { items, total, page: p, pages: Math.max(1, Math.ceil(total / l)) };
   }
 
-  // *** NUEVO: descuenta stock solo si alcanza (operación atómica) ***
   async decStockIfEnough(pid, qty) {
     const r = await ProductModel.updateOne(
       { _id: pid, stock: { $gte: qty } },

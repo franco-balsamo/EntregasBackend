@@ -1,36 +1,6 @@
-//import passport from 'passport'
-//import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt'
-//
-//
-//function cookieExtractor(req) {
-//    if (req && req.cookies) {
-//        return req.cookies['token'] || null
-//    }
-//    return null
-//}
-//
-//
-//export default function initializePassport() {
-//    const opts = {
-//    jwtFromRequest: ExtractJwt.fromExtractors([
-//    cookieExtractor,
-//    ExtractJwt.fromAuthHeaderAsBearerToken(),
-//    ]),
-//    secretOrKey: process.env.JWT_SECRET,
-//    }
-//
-//    passport.use('jwt', new JwtStrategy(opts, async (jwtPayload, done) => {
-//        try {
-//            return done(null, jwtPayload)
-//        } catch (err) {
-//            return done(err, false)
-//        }
-//    }))
-//}
-
 import passport from 'passport';
 import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
-import { config } from './config.js'; // ojo: ruta relativa desde este archivo
+import { config } from './config.js'; 
 import UsersRepository from '../dao/repositories/users.repository.js';
 
 const cookieExtractor = (req) => (req?.cookies?.authToken ?? null);

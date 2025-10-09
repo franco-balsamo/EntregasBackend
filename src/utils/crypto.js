@@ -1,11 +1,16 @@
 import bcrypt from 'bcrypt';
 
-const SALT_ROUNDS = 10;
+export const createHash = (plain) =>
+  bcrypt.hashSync(plain, bcrypt.genSaltSync(10));
 
-export function createHash(plain) {
-  return bcrypt.hashSync(plain, bcrypt.genSaltSync(SALT_ROUNDS));
-}
+export const isValidPassword = (userOrHash, plain) => {
+  const hash = typeof userOrHash === 'string'
+    ? userOrHash
+    : userOrHash?.password;
 
-export function isValidPassword(plain, hashed) {
-  return bcrypt.compareSync(plain, hashed);
-}
+  if (typeof plain !== 'string' || typeof hash !== 'string' || !hash)
+    return false; 
+
+  return bcrypt.compareSync(plain, hash);
+};
+

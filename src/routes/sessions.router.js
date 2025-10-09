@@ -1,99 +1,3 @@
-//import { Router } from 'express'
-//import { UserModel } from '../models/users.js'
-//import { createHash, isValidPassword, generateToken } from '../utils.js'
-//import { passportJWT, authorization } from '../middlewares/auth.js'
-//
-//
-//const router = Router()
-//
-//router.post('/register', async (req, res) => {
-//    try {
-//        const { first_name, last_name, email, age, password, role } = req.body
-//        if (!first_name || !last_name || !email || !age || !password) {
-//            return res.status(400).json({ error: 'Campos requeridos faltantes' })
-//        }
-//        
-//        const exists = await UserModel.findOne({ email })
-//        if (exists) return res.status(409).json({ error: 'Email ya registrado' })
-//
-//        const user = await UserModel.create({
-//            first_name,
-//            last_name,
-//            email,
-//            age,
-//            password: createHash(password),
-//            role: role === 'admin' ? 'admin' : 'user',
-//        })
-//
-//        const dto = {
-//            id: user._id,
-//            first_name: user.first_name,
-//            last_name: user.last_name,
-//            email: user.email,
-//            role: user.role,
-//            age: user.age,
-//        }
-//        return res.status(201).json({ user: dto })
-//
-//    } catch (err) {
-//        console.error('[register] error', err)
-//        return res.status(500).json({ error: 'Internal server error' })
-//    }
-//})
-//
-//router.post('/login', async (req, res) => {
-//    try {
-//        const { email, password } = req.body
-//        if (!email || !password) return res.status(400).json({ error: 'Faltan credenciales' })
-//        
-//        const user = await UserModel.findOne({ email })
-//        if (!user) return res.status(401).json({ error: 'Usuario o contraseña inválidos' })
-//        
-//    
-//        const valid = isValidPassword(user, password)
-//        if (!valid) return res.status(401).json({ error: 'Usuario o contraseña inválidos' })
-//
-//        const payload = {
-//        id: user._id.toString(),
-//        email: user.email,
-//        role: user.role,
-//        first_name: user.first_name,
-//        last_name: user.last_name,
-//        }
-//
-//        const token = generateToken(payload)
-//
-//        res.cookie('token', token, {
-//            httpOnly: true,
-//            secure: process.env.NODE_ENV === 'production',
-//            sameSite: 'lax',
-//            maxAge: 1000 * 60 * 60, // 1h
-//        })
-//
-//        return res.json({ status: 'ok' })
-//
-//    } catch (err) {
-//        console.error('[login] error', err)
-//        return res.status(500).json({ error: 'Internal server error' })
-//    }
-//})
-//
-//router.get('/current', passportJWT, (req, res) => {
-//    const { id, email, role, first_name, last_name } = req.user
-//    return res.json({ user: { id, email, role, first_name, last_name } })
-//})
-//
-//router.get('/admin', passportJWT, authorization(['admin']), (req, res) => {
-//    return res.json({ secret: 'solo-admin', me: req.user })
-//})
-//
-//router.post('/logout', (req, res) => {
-//    res.clearCookie('token')
-//    return res.json({ status: 'logged out' })
-//})
-//
-//export default router
-
 import { Router } from 'express';
 import jwt from 'jsonwebtoken';
 import passport from 'passport';
@@ -104,17 +8,16 @@ import CartsRepository from '../dao/repositories/carts.repository.js';
 import { createHash, isValidPassword } from '../utils/crypto.js';
 import UserDTO from '../dto/user.dto.js';
 import { ensureUserCart } from '../middlewares/ensureUserCart.js';
+import { sendPasswordResetEmail } from '../utils/mailer.js';
 
 const router = Router();
 const COOKIE_NAME = 'authToken';
 const cookieOpts = {
   httpOnly: true,
   sameSite: 'lax',
-  maxAge: 1000 * 60 * 60 * 24, // 1 día
-  // secure: true, // activar en prod con HTTPS
+  maxAge: 1000 * 60 * 60 * 24, 
 };
 
-// REGISTER (crea user + cart y deja logueado por cookie)
 router.post('/register', async (req, res) => {
   try {
     const { first_name, last_name, email, age, password } = req.body;
@@ -148,16 +51,16 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// LOGIN (setea cookie httpOnly)
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ error: 'Email y password requeridos' });
 
-    const user = await UsersRepository.getByEmail(email);
+    
+    const user = await UsersRepository.getByEmailWithPassword(email); 
     if (!user) return res.status(401).json({ error: 'Credenciales inválidas' });
 
-    const ok = isValidPassword(password, user.password);
+    const ok = isValidPassword(user, password); 
     if (!ok) return res.status(401).json({ error: 'Credenciales inválidas' });
 
     const token = jwt.sign(
@@ -174,20 +77,100 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// LOGOUT (borra la cookie)
 router.post('/logout', (req, res) => {
   res.clearCookie(COOKIE_NAME);
   res.json({ status: 'ok' });
 });
 
-// CURRENT (protegido, devuelve DTO sin password)
 router.get(
   '/current',
   passport.authenticate('jwt', { session: false }),
-  ensureUserCart,                  // <- agregado acá
+  ensureUserCart,                  
   (req, res) => {
     res.json(new UserDTO(req.user));
   }
 );
+
+router.post('/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'email requerido' });
+
+  const user = await UsersRepository.getByEmail(email);
+  if (!user) return res.json({ status: 'ok' }); 
+
+  const ph = (user.password || '').slice(-10);
+  const token = jwt.sign({ uid: user._id, ph, type: 'reset' }, config.RESET_SECRET, { expiresIn: '1h' });
+  const resetUrl = `${config.PUBLIC_URL}/api/sessions/reset-password?token=${token}`;
+
+  try {
+    await sendPasswordResetEmail(user.email, resetUrl, user.first_name); 
+  } catch (e) {
+    console.error('Mailer error:', e?.message);
+  }
+
+  if (config.NODE_ENV !== 'production') return res.json({ status: 'ok', previewUrl: resetUrl });
+  res.json({ status: 'ok' });
+});
+
+
+router.get('/reset-password', (req, res) => {
+  const { token } = req.query;
+  const page = `
+  <!doctype html><meta charset="utf-8" />
+  <title>Restablecer contraseña</title>
+  <div style="font-family:system-ui;max-width:480px;margin:48px auto">
+    <h2>Restablecer contraseña</h2>
+    <form method="POST" action="/api/sessions/reset-password" style="display:grid;gap:12px">
+      <input type="hidden" name="token" value="${token||''}">
+      <input name="password" type="password" placeholder="Nueva contraseña" required minlength="8" />
+      <button type="submit" style="padding:10px 14px;border:0;border-radius:8px;background:#0d6efd;color:#fff">
+        Cambiar contraseña
+      </button>
+    </form>
+  </div>`;
+  res.setHeader('Content-Type','text/html; charset=utf-8');
+  res.send(page);
+});
+
+router.post('/reset-password', async (req, res) => {
+  const { token, password } = req.body;
+  if (!token || !password) {
+    return res.status(400).json({ error: 'token y password requeridos' });
+  }
+
+  let payload;
+  try {
+    payload = jwt.verify(token, config.RESET_SECRET);
+  } catch {
+    return res.status(400).json({ error: 'Token inválido o expirado' });
+  }
+  if (payload.type !== 'reset' || !payload.uid) {
+    return res.status(400).json({ error: 'Token inválido' });
+  }
+
+  const user = await UsersRepository.getByIdWithPassword(payload.uid);
+  if (!user) return res.status(400).json({ error: 'Usuario inexistente' });
+
+  const currentPh = (user.password || '').slice(-10);   
+  if (payload.ph !== currentPh) {
+    return res.status(400).json({ error: 'Token ya usado o inválido' });
+  }
+
+  if (isValidPassword(user, password)) {
+    return res.status(400).json({ error: 'La nueva contraseña debe ser distinta a la anterior' });
+  }
+
+  if (password.length < 5) {
+    return res.status(400).json({ error: 'La contraseña debe tener al menos 8 caracteres' });
+  }
+
+  const newHash = createHash(password);
+  await UsersRepository.updateById(user._id, {
+    password: newHash,
+    passwordChangedAt: new Date()
+  });
+
+  return res.json({ status: 'ok' });
+});
 
 export default router;

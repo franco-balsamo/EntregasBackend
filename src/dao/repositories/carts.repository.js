@@ -6,7 +6,6 @@ class CartsRepository {
     return doc.toObject();
   }
 
-  // populate para obtener el price actualizado en purchase
   async getById(id) {
     return CartModel.findById(id).populate('products.product').lean();
   }
